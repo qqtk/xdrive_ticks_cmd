@@ -156,8 +156,8 @@ int main(int argc, char** argv)
     {
         // xdriver_struct_set("Vlin",&vel_x_struct);
         // xdriver_struct_set("Vang",&vel_w_struct;
-        xdriver_setValue("Vlin", &var_Vlin);
-        xdriver_setValue("Vlin", &var_Vang);
+        xdriver_setValue("Vlin", var_Vlin);
+        xdriver_setValue("Vlin", var_Vang);
 
         tick_vec.tick_lb = xdriver_getValue("tlb");
         tick_vec.tick_lf  = xdriver_getValue("tlf");
