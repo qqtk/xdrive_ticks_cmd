@@ -58,10 +58,10 @@ velw_struct vel_w_struct;
 // twist_struct twist_vec_struct;
 
 typedef struct{
-	float tick_lb;
-	float tick_lf;
-	float tick_rb;
-	float tick_rf;
+	int tick_lb;
+	int tick_lf;
+	int tick_rb;
+	int tick_rf;
 } tick_vec_struct;
 tick_vec_struct tick_vec;
 
