@@ -58,10 +58,10 @@ velw_struct vel_w_struct;
 // twist_struct twist_vec_struct;
 
 typedef struct{
+	int tick_rf;
 	int tick_lb;
 	int tick_lf;
 	int tick_rb;
-	int tick_rf;
 } tick_vec_struct;
 tick_vec_struct tick_vec;
 
@@ -90,7 +90,7 @@ void cmdvel_Callback(const geometry_msgs::Twist::ConstPtr& cmdvel_msg)
   rwheelmotor = var_Vlin + var_Vang * wheel_base *0.5;
   // .header.frame_id = "/qch";
   wheelspeed_msg.lwheel = lwheelmotor /d_diam*M_PIpi*reduction_ratio*60 ;
-  wheelspeed_msg.rwheel = d_diam*M_PIpi*reduction_ratio*60;
+  wheelspeed_msg.rwheel = rwheelmotor /d_diam*M_PIpi*reduction_ratio*60;
   wheelspeed_msg.header.stamp = ros::Time::now();
   // header
   cmd_vel_pub.publish(wheelspeed_msg);
@@ -159,13 +159,14 @@ int main(int argc, char** argv)
         xdriver_setValue_float("Vlin", var_Vlin);
         xdriver_setValue_float("Vang", var_Vang);
 
-        tick_vec.tick_lb = xdriver_getValue("tlb");
-        tick_vec.tick_lf  = xdriver_getValue("tlf");
-        tick_vec.tick_rb =  xdriver_getValue("trb");
-        tick_vec.tick_rf = xdriver_getValue("trf");
+        tick_vec.tick_lb = xdriver_getValue("ticklb");
+        tick_vec.tick_lf  = xdriver_getValue("ticklf");
+        tick_vec.tick_rb =  xdriver_getValue("tickrb");
+        tick_vec.tick_rf = xdriver_getValue("tickrf");
 
         ticksMsg.ticks_l = int( (tick_vec.tick_lb + tick_vec.tick_lf )*0.5 );
         ticksMsg.ticks_r = int( (tick_vec.tick_rb + tick_vec.tick_rf) *0.5 );
+        ticksMsg.header.stamp = ros::Time::now();
 
         // xdrive_motor();
         // ticksMsg.rticks = 99; // numA; // 'L'+numA==rwheel
