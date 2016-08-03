@@ -107,30 +107,30 @@ int main(int argc, char** argv)
 
     ros::init(argc, argv, "xdrive_ticks_cmd_node" );
     ROS_INFO("xdrive_ticks_cmd_node starting");
-    ros::NodeHandle nh;
 
-    // ros::NodeHandle private_n.
-    private_n= new ros::NodeHandle("~");
+    ros::NodeHandle nh;
+    ros::NodeHandle nh_private("~").
+    // private_n= new ros::NodeHandle("~");
 
     double d_exec_rate;
-    if(!private_n->getParam("exec_rate", d_exec_rate))
-    {
-        ROS_WARN("No exec_rate provided - default: 20 Hz");
-        d_exec_rate = 20;
-    }
+    nh_private.param("exec_rate", d_exec_rate, 20); 
 
     // float reduction_ratio;
-    if(!private_n->getParam("f_reduction_ratio", reduction_ratio))
-    {
-        ROS_WARN("No reduction_ratio provided - default: 65");
-        d_exec_rate = 65;
-    }
+    nh_private.param("f_reduction_ratio", reduction_ratio, 65); 
 
- float d_diam;
-    if(!private_n->getParam("wheel_diam", d_diam)) {
-        ROS_WARN("Not provided: d_diam. Default=0.262");
-        d_diam  = 0.262;
-    }
+    float d_diam;
+    nh_private.param("wheel_diam", d_diam, 0.262); 
+    // if(!private_n->getParam("wheel_diam", d_diam)) 
+    //    d_diam  = 0.262; ROS_WARN("Not provided: d_diam. Default=0.262"); 
+
+    bool rwheeltick_positive_;
+    int rwheeltick_positive_factor =1;
+    // {rwheeltick_positive, lwheeltick_negative}, vice versa.
+    nh_private.param("rwheeltick_positive_flag", rwheeltick_positive_, true); 
+    if (rwheeltick_positive_ == true)
+      rwheeltick_positive_factor = 1;
+    else if (rwheeltick_positive_ == false)
+      rwheeltick_positive_factor = -1;
 
   ROS_INFO("serial connection _ not-use");
   ros::Subscriber cmdvel_sub = nh.subscribe("cmd_vel", 20, cmdvel_Callback);
@@ -159,14 +159,16 @@ int main(int argc, char** argv)
         xdriver_setValue_float("Vlin", var_Vlin);
         xdriver_setValue_float("Vang", var_Vang);
 
-        tick_vec.tick_lb = xdriver_getValue("ticklb");
-        tick_vec.tick_lf  = xdriver_getValue("ticklf");
-        tick_vec.tick_rb =  xdriver_getValue("tickrb");
-        tick_vec.tick_rf = xdriver_getValue("tickrf");
+        tick_vec.tick_lb = xdriver_getValue("ticklb") * rwheeltick_positive_factor * (-1);
+        tick_vec.tick_lf  = xdriver_getValue("ticklf") * rwheeltick_positive_factor * (-1);
+        tick_vec.tick_rb =  xdriver_getValue("tickrb") * rwheeltick_positive_factor;
+        tick_vec.tick_rf = xdriver_getValue("tickrf") * rwheeltick_positive_factor;
 
-        ticksMsg.ticks_l = int( (tick_vec.tick_lb + tick_vec.tick_lf )*0.5 );
-        ticksMsg.ticks_r = int( (tick_vec.tick_rb + tick_vec.tick_rf) *0.5 );
         ticksMsg.header.stamp = ros::Time::now();
+        ticksMsg.ticks_l = tick_vec.tick_lb;
+        ticksMsg.ticks_r = tick_vec.tick_rb;
+        // ticksMsg.ticks_l = int( (tick_vec.tick_lb + tick_vec.tick_lf )*0.5 );
+        // ticksMsg.ticks_r = int( (tick_vec.tick_rb + tick_vec.tick_rf) *0.5 );
 
         // xdrive_motor();
         // ticksMsg.rticks = 99; // numA; // 'L'+numA==rwheel
