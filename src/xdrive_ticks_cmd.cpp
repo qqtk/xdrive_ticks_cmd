@@ -109,24 +109,38 @@ int main(int argc, char** argv)
     ROS_INFO("xdrive_ticks_cmd_node starting");
 
     ros::NodeHandle nh;
-    ros::NodeHandle nh_private("~").
-    // private_n= new ros::NodeHandle("~");
+    // ros::NodeHandle nh_private("~").
+    private_n= new ros::NodeHandle("~");
 
     double d_exec_rate;
-    nh_private.param("exec_rate", d_exec_rate, 20); 
+    // nh_private.param("exec_rate", d_exec_rate, 20); 
+    if(!private_n->getParam("exec_rate", d_exec_rate)) { 
+        ROS_WARN("Not provided: exec_rate. Default=20"); 
+        d_exec_rate = 20; 
+    }
 
     // float reduction_ratio;
-    nh_private.param("f_reduction_ratio", reduction_ratio, 65); 
+    // nh_private.param("f_reduction_ratio", reduction_ratio, 65); 
+    if(!private_n->getParam("f_reduction_ratio", reduction_ratio)) { 
+        ROS_WARN("Not provided: f_reduction_ratio. Default=65"); 
+        d_diam  = 65; 
+    }
 
     float d_diam;
-    nh_private.param("wheel_diam", d_diam, 0.262); 
-    // if(!private_n->getParam("wheel_diam", d_diam)) 
-    //    d_diam  = 0.262; ROS_WARN("Not provided: d_diam. Default=0.262"); 
+    // nh_private.param("wheel_diam", d_diam, 0.262); 
+    if(!private_n->getParam("wheel_diam", d_diam)) { 
+        ROS_WARN("Not provided: d_diam. Default=0.262"); 
+        d_diam  = 0.262; 
+    }
 
     bool rwheeltick_positive_;
     int rwheeltick_positive_factor =1;
-    // {rwheeltick_positive, lwheeltick_negative}, vice versa.
-    nh_private.param("rwheeltick_positive_flag", rwheeltick_positive_, true); 
+    // flag: {rwheeltick_positive, lwheeltick_negative}, vice versa.
+    if(!private_n->getParam("rwheeltick_positive_flag", rwheeltick_positive_)) { 
+        ROS_WARN("Not provided: rwheeltick_positive_flag. Default=true"); 
+        rwheeltick_positive_ = true; 
+    }
+    // nh_private.param("rwheeltick_positive_flag", rwheeltick_positive_, true); 
     if (rwheeltick_positive_ == true)
       rwheeltick_positive_factor = 1;
     else if (rwheeltick_positive_ == false)
