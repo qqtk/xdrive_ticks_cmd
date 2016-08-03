@@ -21,6 +21,9 @@ extern "C" {
 	unsigned int xdriver_getValue(const char *tagName);
 	bool xdriver_setValue(const char *tagName, const unsigned int value);
 
+	float xdriver_getValue_float(const char *tagName);
+	bool xdriver_setValue_float(const char *tagName, const float value);
+
 	unsigned int xdriver_struct_get(const char *tagName,void *structData);
 	bool xdriver_struct_set(const char *tagName, void *structData);
 
